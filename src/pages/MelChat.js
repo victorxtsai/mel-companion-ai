@@ -1,14 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth } from "../firebaseConfig";
-import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
-import "./MelChat.css"; // Ensure this contains the updated styles
+import { signInWithCustomToken, signOut } from "firebase/auth";
+import "./MelChat.css";
 
 const MelChat = () => {
   const [user, setUser] = useState(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
-  const messagesEndRef = useRef(null); // Reference to scroll into view
+  const messagesEndRef = useRef(null);
 
+  // 1) Check for token in URL on mount, sign in if present
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      // Attempt to sign in with the custom token
+      signInWithCustomToken(auth, token)
+        .then(() => {
+          console.log("Signed in with custom token on mel.mindwell.io");
+          // Optional: remove 'token' from the URL to clean up
+          params.delete("token");
+          window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+        })
+        .catch((err) => {
+          console.error("Error with custom token sign-in:", err);
+        });
+    }
+  }, []);
+
+  // 2) Listen for changes in auth state (user logged in/out)
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       setUser(authUser);
@@ -16,14 +37,17 @@ const MelChat = () => {
     return () => unsubscribe();
   }, []);
 
-  // Scroll to the latest message whenever `messages` updates
+  // 3) Scroll logic
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleLogin = async () => {
-    window.location.href = "https://auth.mindwellworld.com/"; 
-  };  
+  // 4) If user not signed in, redirect to Auth with `?redirect=`
+  const handleLogin = () => {
+    const currentUrl = window.location.href;
+    window.location.href =
+      `https://auth.mindwellworld.com/?redirect=${encodeURIComponent(currentUrl)}`;
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -34,8 +58,8 @@ const MelChat = () => {
     if (!input.trim()) return;
 
     if (!user) {
-      setMessages([...messages, 
-        { role: "user", content: input }, 
+      setMessages([...messages,
+        { role: "user", content: input },
         { role: "bot", content: "Please sign in to chat with Mel." }
       ]);
       setInput("");
@@ -46,11 +70,10 @@ const MelChat = () => {
       method: "POST",
       body: JSON.stringify({ message: input }),
     });
-
     const data = await response.json();
     setMessages([
-      ...messages, 
-      { role: "user", content: input }, 
+      ...messages,
+      { role: "user", content: input },
       { role: "bot", content: data.choices[0].message.content }
     ]);
     setInput("");
@@ -97,7 +120,6 @@ const MelChat = () => {
             {msg.content}
           </div>
         ))}
-        {/* Empty div to scroll into view */}
         <div ref={messagesEndRef} />
       </div>
 
@@ -116,25 +138,24 @@ const MelChat = () => {
             Send
           </button>
         </div>
-        
-        {/* Ensure warning is always visible */}
+
         {!user && <p className="login-warning">You must sign in to chat with Mel.</p>}
       </div>
 
       {/* Footer */}
       <footer className="chat-footer">
-        <a 
-          href="https://www.mindwellworld.com" 
-          style={{ color: "black", textDecoration: "none" }}
-        >
-          A Mindwell World
-        </a>{" "}
-        |{" "}
-        <a 
-          href="https://www.mindwell.io" 
+        <a
+          href="https://www.mindwell.io"
           style={{ color: "black", textDecoration: "none" }}
         >
           App
+        </a>{" "}
+        |{" "}
+        <a
+          href="https://www.mindwellworld.com"
+          style={{ color: "black", textDecoration: "none" }}
+        >
+          A Mindwell World
         </a>
       </footer>
     </div>

@@ -1,1 +1,1 @@
-Chat With Mel
+Mel Companion AI
