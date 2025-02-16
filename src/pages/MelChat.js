@@ -22,8 +22,12 @@ const MelChat = () => {
   }, [messages]);
 
   const handleLogin = async () => {
-    window.location.href = "https://auth.mindwellworld.com/"; 
-  };  
+    const currentUrl = window.location.href; // The current URL of the page the user is on:
+    
+    // Encode it and add a query param:
+    window.location.href = 
+      `https://auth.mindwellworld.com/?redirect=${encodeURIComponent(currentUrl)}`;
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
