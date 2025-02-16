@@ -9,21 +9,34 @@
 
 /* Header */
 .chat-header {
-  width: 100%;
+  width: 90%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  /* Removed the border-bottom */
+  /* border-bottom: 1px solid #ddd; */
+  /* Added left and right margins as requested */
+  /* margin: 0 20px; */
   background-color: #ffffff;
-  border-bottom: 1px solid #ddd;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-title {
   font-size: 24px;
   font-weight: bold;
+  margin-bottom: 3px; /* small gap before the subtitle */
 }
 
-/* Login Button */
+.chat-subtitle {
+  font-size: 14px;
+  margin-left: 10px; /* indent for the subtitle */
+}
+
+/* Login Button -> Sign In Button */
 .login-button {
   background-color: black;
   color: white;
@@ -78,9 +91,16 @@
   width: 100%;
   max-width: 600px;
   padding: 20px;
+  /* Hide the scrollbar */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.chat-messages::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .message {
@@ -107,7 +127,6 @@
   width: 100%;
   max-width: 600px;
   padding: 10px;
-  border-top: 1px solid #ddd;
 }
 
 .chat-input-wrapper {
