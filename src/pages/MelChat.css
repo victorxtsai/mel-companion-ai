@@ -17,6 +17,7 @@
   /* border-bottom: 1px solid #ddd; */
   /* Added left and right margins as requested */
   /* margin: 0 20px; */
+  padding-top: 20px;
   background-color: #ffffff;
 }
 
@@ -165,5 +166,18 @@
   text-align: center;
   color: red;
   font-size: 14px;
-  margin-top: 5px;
+  margin-top: 10px; /* Add spacing */
+  visibility: visible; /* Ensure it is not hidden */
+  display: block; /* Ensure it is displayed */
+}
+
+/* Footer */
+.chat-footer {
+  width: 90%;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 14px;
+  position: absolute;
+  bottom: 0;
+  background: white;
 }

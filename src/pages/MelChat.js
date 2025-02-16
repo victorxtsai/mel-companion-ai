@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { auth } from "../firebaseConfig";
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import "./MelChat.css"; // Ensure this contains the updated styles
@@ -7,6 +7,7 @@ const MelChat = () => {
   const [user, setUser] = useState(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const messagesEndRef = useRef(null); // Reference to scroll into view
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
@@ -15,22 +16,20 @@ const MelChat = () => {
     return () => unsubscribe();
   }, []);
 
-  // Handle Google Sign-In (if you still need it here; 
-  // or you might move it to the SignIn page)
-  const handleLogin = async () => {
-    // Instead of direct sign-in, we can redirect to your new SignIn page.
-    // Or you can keep the old Google Sign-In logic here. 
-    // For now, let's redirect to the SignIn page:
-    window.location.href = "/signin"; 
-  };
+  // Scroll to the latest message whenever `messages` updates
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  // Handle Logout
+  const handleLogin = async () => {
+    window.location.href = "https://auth.mindwellworld.com/"; 
+  };  
+
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
   };
 
-  // Handle Sending Message
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -57,7 +56,6 @@ const MelChat = () => {
     setInput("");
   };
 
-  // Send message on "Enter" key
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -70,27 +68,7 @@ const MelChat = () => {
       {/* Header */}
       <div className="chat-header">
         <div className="header-left">
-          {/* Title changed to "Mel" with a subtitle */}
           <div className="chat-title">Mel</div>
-          <div className="chat-subtitle">
-            <a 
-              href="https://www.mindwellworld.com" 
-              style={{ color: "black", textDecoration: "none" }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              A Mindwell World
-            </a>{" "}
-            |{" "}
-            <a 
-              href="https://www.mindwell.io" 
-              style={{ color: "black", textDecoration: "none" }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              App
-            </a>
-          </div>
         </div>
         {user ? (
           <div className="profile-menu">
@@ -119,6 +97,8 @@ const MelChat = () => {
             {msg.content}
           </div>
         ))}
+        {/* Empty div to scroll into view */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Chat Input */}
@@ -136,8 +116,27 @@ const MelChat = () => {
             Send
           </button>
         </div>
+        
+        {/* Ensure warning is always visible */}
         {!user && <p className="login-warning">You must sign in to chat with Mel.</p>}
       </div>
+
+      {/* Footer */}
+      <footer className="chat-footer">
+        <a 
+          href="https://www.mindwellworld.com" 
+          style={{ color: "black", textDecoration: "none" }}
+        >
+          A Mindwell World
+        </a>{" "}
+        |{" "}
+        <a 
+          href="https://www.mindwell.io" 
+          style={{ color: "black", textDecoration: "none" }}
+        >
+          App
+        </a>
+      </footer>
     </div>
   );
 };
